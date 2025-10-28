@@ -1,0 +1,71 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+venv/
+ENV/
+env/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+logs/
+src/backend/logs/
+
+# Sessions
+flask_session/
+src/backend/flask_session/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+tmp/
+
+# Old documentation
+README.md
+DEPLOYMENT.md
+QUICKSTART.md
+SECURITY.md
+ARCHITECTURE.md
+GETTING_STARTED.md
+INDEX.md
+CHECKLIST.md
+PROJECT_SUMMARY.md
+Dockerfile
+docker-compose.yml
+Makefile
+scripts/
+
+# Original desktop application (not part of web app)
+FlightPathViewer.py

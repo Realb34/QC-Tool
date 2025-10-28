@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  qc-tool:
+    build:
+      context: .
+      dockerfile: Dockerfile.new
+    container_name: qc-tool-web
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=${FLASK_ENV:-production}
+      - SECRET_KEY=${SECRET_KEY}
+      - DEBUG=${DEBUG:-False}
+      - PORT=5000
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:5000}
+      - SESSION_COOKIE_SECURE=${SESSION_COOKIE_SECURE:-False}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    volumes:
+      - ./logs:/app/src/backend/logs
+      - ./flask_session:/app/src/backend/flask_session
+    networks:
+      - qc-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+networks:
+  qc-network:
+    driver: bridge
+
+volumes:
+  logs:
+  flask_session:

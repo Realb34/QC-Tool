@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}File Viewer - QC Tool{% endblock %}
+
+{% block content %}
+<div class="viewer-container">
+    <!-- Sidebar -->
+    <aside class="viewer-sidebar">
+        <div class="sidebar-header">
+            <h3>Site Browser</h3>
+            <button onclick="backToSites()" class="btn btn-small btn-secondary">
+                ← Back to Sites
+            </button>
+        </div>
+
+        <div class="breadcrumb" id="breadcrumb">
+            <span class="breadcrumb-item">Loading...</span>
+        </div>
+
+        <div class="file-tree" id="fileTree">
+            <div class="loading-state">
+                <div class="spinner"></div>
+                <p>Loading files...</p>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="viewer-main">
+        <div class="viewer-header">
+            <h2 id="currentPath">File Viewer</h2>
+            <div class="viewer-actions">
+                <button onclick="refreshView()" class="btn btn-small btn-secondary">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z"/>
+                        <path fill-rule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z"/>
+                    </svg>
+                    Refresh
+                </button>
+            </div>
+        </div>
+
+        <!-- File List -->
+        <div class="file-list" id="fileList">
+            <!-- Files will be populated here -->
+        </div>
+
+        <!-- Preview Area -->
+        <div class="file-preview" id="filePreview" style="display: none;">
+            <div class="preview-header">
+                <h3 id="previewTitle">Preview</h3>
+                <button onclick="closePreview()" class="btn btn-small btn-secondary">Close</button>
+            </div>
+            <div class="preview-content" id="previewContent">
+                <!-- Preview content will be displayed here -->
+            </div>
+            <div class="preview-actions">
+                <button onclick="downloadCurrentFile()" class="btn btn-primary">
+                    Download File
+                </button>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <svg width="64" height="64" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M8.5 2.687c.654-.689 1.782-.886 3.112-.752 1.234.124 2.503.523 3.388.893v9.923c-.918-.35-2.107-.692-3.287-.81-1.094-.111-2.278-.039-3.213.492V2.687zM8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783z"/>
+            </svg>
+            <h3>No Files</h3>
+            <p>This directory is empty.</p>
+        </div>
+    </main>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/viewer.js') }}"></script>
+{% endblock %}
