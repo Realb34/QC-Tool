@@ -2,21 +2,15 @@ services:
   - type: web
     name: qc-tool
     env: python
-    region: oregon  # Change to your preferred region
-    plan: free  # Change to 'starter' for $7/mo (no sleep)
+    region: oregon
+    plan: starter
     buildCommand: pip install -r src/backend/requirements.txt
-    startCommand: cd src/backend && gunicorn --bind 0.0.0.0:$PORT --workers 2 --timeout 120 'app:create_app()'
-    healthCheckPath: /health
+    startCommand: python src/backend/app.py
     envVars:
       - key: FLASK_ENV
         value: production
-      - key: DEBUG
-        value: False
-      - key: SESSION_COOKIE_SECURE
-        value: True
-      - key: SECRET_KEY
-        generateValue: true
-      - key: LOG_LEVEL
-        value: INFO
-      - key: PYTHONPATH
-        value: /opt/render/project/src/src/backend
+      - key: PORT
+        value: 5000
+      - key: PYTHON_VERSION
+        value: 3.10.0
+    healthCheckPath: /health
