@@ -67,6 +67,8 @@ def login():
         session['host'] = host
         session['username'] = username
         session['protocol'] = protocol
+        session['password'] = password  # Store password for parallel processing connection pooling
+        session['port'] = port
         session.permanent = True
 
         logger.info(f"User logged in: {username}@{host} ({protocol})")

@@ -14,6 +14,9 @@ class Config:
 
     # Session settings
     SESSION_TYPE = 'filesystem'
+    SESSION_FILE_DIR = os.path.join(os.path.dirname(__file__), 'flask_session')
+    SESSION_PERMANENT = True
+    SESSION_COOKIE_NAME = 'qc_tool_session'
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = 'Lax'
     SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE', 'False').lower() == 'true'

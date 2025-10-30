@@ -5,14 +5,27 @@
 {% block content %}
 <div class="sites-container">
     <div class="sites-header">
-        <h2>Select a Site</h2>
-        <p>Choose a site to view files and perform quality control</p>
+        <h2>Browse to Site Folder</h2>
+        <p>Navigate to the specific site folder, then click "Generate QC View"</p>
+    </div>
+
+    <!-- Breadcrumb Navigation -->
+    <div class="breadcrumb-nav" id="breadcrumbNav">
+        <button onclick="navigateUp()" class="btn btn-small btn-secondary" id="upButton" style="display: none;">
+            ← Up
+        </button>
+        <div class="breadcrumb-path" id="breadcrumbPath">
+            <span class="breadcrumb-item active">/</span>
+        </div>
+        <button onclick="generateQCView()" class="btn btn-primary" id="generateQCButton" style="display: none;">
+            🚀 Generate QC View
+        </button>
     </div>
 
     <!-- Loading State -->
     <div id="sitesLoading" class="loading-state">
         <div class="spinner-large"></div>
-        <p>Loading sites...</p>
+        <p>Loading folders...</p>
     </div>
 
     <!-- Error State -->
@@ -21,7 +34,7 @@
             <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
             <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/>
         </svg>
-        <p id="sitesErrorMessage">Failed to load sites</p>
+        <p id="sitesErrorMessage">Failed to load folders</p>
         <button onclick="loadSites()" class="btn btn-primary">Retry</button>
     </div>
 
@@ -35,10 +48,71 @@
         <svg width="64" height="64" viewBox="0 0 16 16" fill="currentColor">
             <path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5v-2z"/>
         </svg>
-        <h3>No Sites Found</h3>
-        <p>No site directories were found on the server.</p>
+        <h3>No Folders Found</h3>
+        <p>This directory is empty.</p>
     </div>
 </div>
+
+<style>
+.breadcrumb-nav {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 30px;
+    background: var(--secondary-bg);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.breadcrumb-path {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 15px;
+    background: var(--primary-bg);
+    border-radius: 6px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+.breadcrumb-item {
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.breadcrumb-item:hover {
+    color: var(--primary-color);
+}
+
+.breadcrumb-item.active {
+    color: var(--text-primary);
+    font-weight: bold;
+}
+
+.breadcrumb-item::after {
+    content: ' / ';
+    margin: 0 5px;
+    color: var(--text-secondary);
+}
+
+.breadcrumb-item:last-child::after {
+    content: '';
+}
+
+#generateQCButton {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
+    }
+    50% {
+        box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
+    }
+}
+</style>
 {% endblock %}
 
 {% block scripts %}

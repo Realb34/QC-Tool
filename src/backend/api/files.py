@@ -165,12 +165,68 @@ def file_info():
         return jsonify({'error': f'Failed to get file info: {str(e)}'}), 500
 
 
-@files_bp.route('/preview', methods=['POST'])
+@files_bp.route('/thumbnail', methods=['GET'])
+def generate_thumbnail():
+    """
+    Generate thumbnail on-demand from SFTP file with caching.
+    Checks cache first, generates only if needed.
+
+    Query params:
+        file_path: Full path to image file on SFTP server
+
+    Returns:
+        Thumbnail image (200x200 JPEG)
+    """
+    try:
+        import tempfile
+        import hashlib
+        from PIL import Image
+
+        file_path = request.args.get('file_path')
+        if not file_path:
+            return jsonify({'error': 'file_path required'}), 400
+
+        # Create cache directory
+        thumb_dir = os.path.join(tempfile.gettempdir(), "qc_tool_thumbnails")
+        os.makedirs(thumb_dir, exist_ok=True)
+
+        # Generate cache filename from file path hash
+        path_hash = hashlib.md5(file_path.encode()).hexdigest()
+        session_id = session.get('session_id', 'default')
+        thumb_filename = f"{session_id}_{path_hash}.jpg"
+        thumb_path = os.path.join(thumb_dir, thumb_filename)
+
+        # Serve from cache if exists
+        if os.path.exists(thumb_path):
+            logger.debug(f"Serving cached thumbnail: {thumb_filename}")
+            return send_file(thumb_path, mimetype='image/jpeg')
+
+        # Generate new thumbnail
+        connection = get_sftp_connection()
+
+        # Read partial file (first 512KB for thumbnail)
+        file_buffer = file_service.read_file_partial(connection, file_path, max_bytes=512 * 1024)
+
+        # Generate thumbnail
+        with Image.open(file_buffer) as img:
+            img.thumbnail((200, 200), Image.Resampling.LANCZOS)
+            img.save(thumb_path, "JPEG", quality=85)
+
+        logger.info(f"Generated thumbnail: {thumb_filename}")
+
+        return send_file(thumb_path, mimetype='image/jpeg')
+
+    except Exception as e:
+        logger.error(f"Error generating thumbnail for {file_path}: {e}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+
+@files_bp.route('/preview', methods=['POST', 'GET'])
 def preview():
     """
     Preview a file (return file content for display)
 
-    Request JSON:
+    Query params (GET) or Request JSON (POST):
         {
             "file_path": "/Site001/file.jpg",
             "max_size": 10485760  // 10MB max for preview
@@ -188,9 +244,14 @@ def preview():
         if not connection:
             return jsonify({'error': 'Session expired'}), 401
 
-        data = request.get_json()
-        file_path = data.get('file_path')
-        max_size = data.get('max_size', 10 * 1024 * 1024)  # 10MB default
+        # Get parameters
+        if request.method == 'GET':
+            file_path = request.args.get('file_path')
+            max_size = int(request.args.get('max_size', 10 * 1024 * 1024))
+        else:
+            data = request.get_json()
+            file_path = data.get('file_path')
+            max_size = data.get('max_size', 10 * 1024 * 1024)
 
         if not file_path:
             return jsonify({'error': 'File path required'}), 400

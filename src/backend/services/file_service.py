@@ -52,6 +52,10 @@ class FileService:
         items = []
 
         try:
+            # Ensure channel has timeout set
+            if hasattr(client, 'get_channel') and client.get_channel():
+                client.get_channel().settimeout(30.0)
+
             # Normalize path
             if path == '.' or path == '':
                 path = client.getcwd() or '/'
@@ -142,6 +146,9 @@ class FileService:
 
         try:
             if connection.connection_type == ConnectionType.SFTP:
+                # Ensure channel has timeout set
+                if hasattr(connection.client, 'get_channel') and connection.client.get_channel():
+                    connection.client.get_channel().settimeout(30.0)
                 with connection.client.open(file_path, 'rb') as remote_file:
                     file_buffer.write(remote_file.read())
             else:
@@ -154,6 +161,62 @@ class FileService:
         except Exception as e:
             logger.error(f"Download error: {e}")
             raise Exception(f"Failed to download file: {str(e)}")
+
+    @staticmethod
+    def read_file_partial(connection: Connection, file_path: str, max_bytes: int = 65536) -> io.BytesIO:
+        """
+        Read only the first portion of a file (for EXIF extraction)
+
+        Args:
+            connection: Active connection object
+            file_path: Path to file on server
+            max_bytes: Maximum bytes to read (default 64KB, enough for EXIF)
+
+        Returns:
+            BytesIO buffer containing partial file contents
+
+        Raises:
+            Exception: If read fails
+        """
+        logger.debug(f"Reading partial file (first {max_bytes} bytes): {file_path}")
+
+        file_buffer = io.BytesIO()
+
+        try:
+            if connection.connection_type == ConnectionType.SFTP:
+                # Ensure channel has timeout set
+                if hasattr(connection.client, 'get_channel') and connection.client.get_channel():
+                    connection.client.get_channel().settimeout(30.0)
+                with connection.client.open(file_path, 'rb') as remote_file:
+                    # Read only the first max_bytes
+                    data = remote_file.read(max_bytes)
+                    file_buffer.write(data)
+            else:
+                # For FTP, we need to use a callback that stops after max_bytes
+                bytes_read = [0]
+
+                def write_callback(data):
+                    if bytes_read[0] < max_bytes:
+                        remaining = max_bytes - bytes_read[0]
+                        chunk = data[:remaining]
+                        file_buffer.write(chunk)
+                        bytes_read[0] += len(chunk)
+                        if bytes_read[0] >= max_bytes:
+                            raise Exception("STOP")  # Stop transfer
+
+                try:
+                    connection.client.retrbinary(f'RETR {file_path}', write_callback)
+                except Exception as e:
+                    if "STOP" not in str(e):
+                        raise
+
+            file_buffer.seek(0)
+            logger.debug(f"Read {file_buffer.tell()} bytes from {file_path}")
+            return file_buffer
+
+        except Exception as e:
+            logger.error(f"Partial read error: {e}")
+            raise Exception(f"Failed to read file: {str(e)}")
 
     @staticmethod
     def get_file_info(connection: Connection, file_path: str) -> Optional[Dict[str, Any]]:

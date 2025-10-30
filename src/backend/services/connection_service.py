@@ -104,6 +104,10 @@ class ConnectionService:
             # Store SSH client reference to prevent garbage collection
             sftp_client._ssh_client = ssh_client
 
+            # Set channel timeout to prevent hangs on operations
+            if hasattr(sftp_client, 'get_channel') and sftp_client.get_channel():
+                sftp_client.get_channel().settimeout(30.0)
+
             return sftp_client
 
         except paramiko.AuthenticationException:

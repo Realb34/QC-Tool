@@ -39,13 +39,14 @@ def create_app(config_name=None):
     logger = logging.getLogger(__name__)
     logger.info(f"Starting QC Tool Web Application in {config_name} mode")
 
-    # Initialize extensions
-    CORS(app, origins=app.config['CORS_ORIGINS'], supports_credentials=True)
-    Session(app)
-
     # Create necessary directories
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
     os.makedirs(os.path.dirname(app.config['LOG_FILE']), exist_ok=True)
+    os.makedirs(app.config.get('SESSION_FILE_DIR', os.path.join(os.path.dirname(__file__), 'flask_session')), exist_ok=True)
+
+    # Initialize extensions
+    CORS(app, origins=app.config['CORS_ORIGINS'], supports_credentials=True)
+    Session(app)
 
     # Register blueprints
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
@@ -67,6 +68,11 @@ def create_app(config_name=None):
     def viewer():
         """Serve file viewer page"""
         return render_template('viewer.html')
+
+    @app.route('/qc-viewer')
+    def qc_viewer():
+        """Serve enhanced QC viewer with 3D visualization"""
+        return render_template('qc_viewer.html')
 
     @app.route('/health')
     def health():
