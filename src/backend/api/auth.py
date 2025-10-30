@@ -4,7 +4,7 @@ Handles FTP/SFTP server login and session management
 """
 import logging
 import uuid
-from flask import Blueprint, request, jsonify, session
+from flask import Blueprint, request, jsonify, session, current_app
 
 from services.connection_service import connection_service
 
@@ -73,7 +73,8 @@ def login():
         session.modified = True  # Explicitly mark session as modified
 
         logger.info(f"User logged in: {username}@{host} ({protocol}), session_id: {session_id}")
-        logger.debug(f"Session data: {dict(session)}")
+        logger.info(f"Session data after login: {dict(session)}")
+        logger.info(f"Request scheme: {request.scheme}, is_secure: {request.is_secure}")
 
         response = jsonify({
             'success': True,
@@ -86,6 +87,9 @@ def login():
                 'protocol': protocol
             }
         })
+
+        # Log response headers to see if Set-Cookie is being sent
+        logger.info(f"Response headers will include Set-Cookie: {current_app.config.get('SESSION_COOKIE_NAME')}")
 
         return response, 200
 
@@ -146,8 +150,9 @@ def status():
             "username": "user"
         }
     """
-    logger.debug(f"Auth status check - Session contents: {dict(session)}")
-    logger.debug(f"Auth status check - Session ID from request: {request.cookies.get('qc_tool_session')}")
+    logger.info(f"Auth status check - Session contents: {dict(session)}")
+    logger.info(f"Auth status check - Cookie from request: {request.cookies.get('qc_tool_session')}")
+    logger.info(f"Auth status check - All cookies: {dict(request.cookies)}")
     session_id = session.get('session_id')
 
     if not session_id:

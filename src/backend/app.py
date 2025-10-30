@@ -5,6 +5,7 @@ import os
 import logging
 from flask import Flask, render_template
 from flask_cors import CORS
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 from config import config
 from api import auth_bp, sites_bp, files_bp
@@ -32,6 +33,12 @@ def create_app(config_name=None):
 
     # Load configuration
     app.config.from_object(config[config_name])
+
+    # CRITICAL: Tell Flask we're behind a proxy (Render's load balancer)
+    # This makes request.is_secure and request.scheme work correctly with HTTPS
+    # x_proto=1 means trust X-Forwarded-Proto header (http vs https)
+    # x_host=1 means trust X-Forwarded-Host header
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
     # Setup logging
     setup_logging(app)
