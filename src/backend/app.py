@@ -5,7 +5,6 @@ import os
 import logging
 from flask import Flask, render_template
 from flask_cors import CORS
-from flask_session import Session
 
 from config import config
 from api import auth_bp, sites_bp, files_bp
@@ -42,7 +41,6 @@ def create_app(config_name=None):
     # Create necessary directories
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
     os.makedirs(os.path.dirname(app.config['LOG_FILE']), exist_ok=True)
-    os.makedirs(app.config.get('SESSION_FILE_DIR', os.path.join(os.path.dirname(__file__), 'flask_session')), exist_ok=True)
 
     # Initialize extensions
     # CORS must support credentials for session cookies to work
@@ -60,7 +58,9 @@ def create_app(config_name=None):
          supports_credentials=True,
          allow_headers=["Content-Type", "Authorization"],
          methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
-    Session(app)
+
+    # Using Flask's native session management (signed cookies)
+    # No need for Flask-Session initialization
 
     # Register blueprints
     app.register_blueprint(auth_bp, url_prefix='/api/auth')

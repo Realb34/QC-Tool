@@ -12,9 +12,9 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY', secrets.token_hex(32))
     DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
-    # Session settings
-    SESSION_TYPE = 'filesystem'
-    SESSION_FILE_DIR = os.path.join(os.path.dirname(__file__), 'flask_session')
+    # Session settings - using signed cookies for better Render compatibility
+    # Filesystem sessions have issues on Render's ephemeral storage
+    SESSION_TYPE = 'null'  # Use Flask's default signed cookie sessions
     SESSION_PERMANENT = True
     SESSION_COOKIE_NAME = 'qc_tool_session'
     SESSION_COOKIE_HTTPONLY = True
@@ -57,10 +57,6 @@ class ProductionConfig(Config):
     SESSION_COOKIE_SECURE = True
     # Allow sessions to work with HTTPS - None allows cross-origin cookies
     SESSION_COOKIE_SAMESITE = 'None'
-    # Ensure session directory exists in Render's ephemeral storage
-    SESSION_FILE_DIR = os.environ.get('SESSION_FILE_DIR', '/tmp/flask_session')
-    # Explicitly set cookie path
-    SESSION_COOKIE_PATH = '/'
 
 
 # Config dictionary

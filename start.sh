@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 set -e
 
-echo "Creating session directory..."
-mkdir -p /tmp/flask_session
-
 echo "Creating logs directory..."
 mkdir -p /tmp/logs
 

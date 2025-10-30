@@ -12,8 +12,6 @@ services:
         value: production
       - key: PYTHON_VERSION
         value: 3.10.14
-      - key: SESSION_FILE_DIR
-        value: /tmp/flask_session
       - key: LOG_LEVEL
         value: DEBUG
     healthCheckPath: /health
