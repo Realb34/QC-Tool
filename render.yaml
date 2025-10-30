@@ -6,10 +6,12 @@ services:
     region: oregon
     plan: starter
     buildCommand: pip install --upgrade pip && pip install -r requirements.txt
-    startCommand: gunicorn --bind 0.0.0.0:$PORT --timeout 600 --workers 2 'src.backend.app:create_app()'
+    startCommand: bash start.sh
     envVars:
       - key: FLASK_ENV
         value: production
       - key: PYTHON_VERSION
         value: 3.10.14
+      - key: SESSION_FILE_DIR
+        value: /tmp/flask_session
     healthCheckPath: /health

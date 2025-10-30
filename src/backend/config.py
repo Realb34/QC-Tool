@@ -34,8 +34,9 @@ class Config:
     RATELIMIT_STORAGE_URL = 'memory://'
     RATELIMIT_DEFAULT = "200 per day, 50 per hour"
 
-    # CORS settings
-    CORS_ORIGINS = os.environ.get('ALLOWED_ORIGINS', 'http://localhost:*').split(',')
+    # CORS settings - allow Render URLs and localhost
+    default_origins = 'http://localhost:*,https://*.onrender.com'
+    CORS_ORIGINS = os.environ.get('ALLOWED_ORIGINS', default_origins).split(',')
 
     # Logging
     LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO')
@@ -51,7 +52,12 @@ class DevelopmentConfig(Config):
 class ProductionConfig(Config):
     """Production configuration"""
     DEBUG = False
-    SESSION_COOKIE_SECURE = True
+    # For HTTPS deployments (Render provides HTTPS)
+    SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE', 'True').lower() == 'true'
+    # Allow sessions to work across Render's load balancer
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    # Ensure session directory exists
+    SESSION_FILE_DIR = os.environ.get('SESSION_FILE_DIR', '/tmp/flask_session')
 
 
 # Config dictionary
