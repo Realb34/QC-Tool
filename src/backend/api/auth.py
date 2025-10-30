@@ -63,17 +63,19 @@ def login():
         )
 
         # Store session ID in Flask session
+        session.permanent = True
         session['session_id'] = session_id
         session['host'] = host
         session['username'] = username
         session['protocol'] = protocol
         session['password'] = password  # Store password for parallel processing connection pooling
         session['port'] = port
-        session.permanent = True
+        session.modified = True  # Explicitly mark session as modified
 
-        logger.info(f"User logged in: {username}@{host} ({protocol})")
+        logger.info(f"User logged in: {username}@{host} ({protocol}), session_id: {session_id}")
+        logger.debug(f"Session data: {dict(session)}")
 
-        return jsonify({
+        response = jsonify({
             'success': True,
             'session_id': session_id,
             'message': 'Connected successfully',
@@ -83,7 +85,9 @@ def login():
                 'username': username,
                 'protocol': protocol
             }
-        }), 200
+        })
+
+        return response, 200
 
     except ValueError as e:
         logger.warning(f"Login validation error: {e}")
@@ -142,9 +146,12 @@ def status():
             "username": "user"
         }
     """
+    logger.debug(f"Auth status check - Session contents: {dict(session)}")
+    logger.debug(f"Auth status check - Session ID from request: {request.cookies.get('qc_tool_session')}")
     session_id = session.get('session_id')
 
     if not session_id:
+        logger.warning("Auth status check - No session_id found in session")
         return jsonify({
             'authenticated': False
         }), 200

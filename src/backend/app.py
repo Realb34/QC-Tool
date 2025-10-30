@@ -46,8 +46,17 @@ def create_app(config_name=None):
 
     # Initialize extensions
     # CORS must support credentials for session cookies to work
+    # CRITICAL: Cannot use origins="*" with supports_credentials=True
+    # Must specify exact origins for security
+    allowed_origins = [
+        'https://qc-tool-xebl.onrender.com',
+        'http://localhost:5000',
+        'http://localhost:3000',
+        'http://127.0.0.1:5000'
+    ]
+
     CORS(app,
-         resources={r"/api/*": {"origins": "*"}},
+         resources={r"/api/*": {"origins": allowed_origins}},
          supports_credentials=True,
          allow_headers=["Content-Type", "Authorization"],
          methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
