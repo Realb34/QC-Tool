@@ -8,10 +8,10 @@ gunicorn==21.2.0
 paramiko==3.4.0
 cryptography==42.0.0
 
-# Image processing and data analysis
-Pillow==10.1.0
+# Image processing and data analysis - using versions with pre-built wheels
+Pillow==10.4.0
 plotly==5.18.0
-numpy==1.26.2
+numpy==1.26.4
 
 # EXIF reading
 exifread==3.0.0
