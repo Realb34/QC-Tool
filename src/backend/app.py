@@ -45,7 +45,12 @@ def create_app(config_name=None):
     os.makedirs(app.config.get('SESSION_FILE_DIR', os.path.join(os.path.dirname(__file__), 'flask_session')), exist_ok=True)
 
     # Initialize extensions
-    CORS(app, origins=app.config['CORS_ORIGINS'], supports_credentials=True)
+    # CORS must support credentials for session cookies to work
+    CORS(app,
+         resources={r"/api/*": {"origins": "*"}},
+         supports_credentials=True,
+         allow_headers=["Content-Type", "Authorization"],
+         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
     Session(app)
 
     # Register blueprints

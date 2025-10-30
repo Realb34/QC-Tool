@@ -18,8 +18,9 @@ class Config:
     SESSION_PERMANENT = True
     SESSION_COOKIE_NAME = 'qc_tool_session'
     SESSION_COOKIE_HTTPONLY = True
-    SESSION_COOKIE_SAMESITE = 'Lax'
+    SESSION_COOKIE_SAMESITE = 'None'  # Required for cross-origin in some browsers
     SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE', 'False').lower() == 'true'
+    SESSION_COOKIE_PATH = '/'
     PERMANENT_SESSION_LIFETIME = timedelta(hours=4)
 
     # File upload settings
@@ -52,12 +53,14 @@ class DevelopmentConfig(Config):
 class ProductionConfig(Config):
     """Production configuration"""
     DEBUG = False
-    # For HTTPS deployments (Render provides HTTPS)
-    SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE', 'True').lower() == 'true'
-    # Allow sessions to work across Render's load balancer
-    SESSION_COOKIE_SAMESITE = 'Lax'
-    # Ensure session directory exists
+    # For HTTPS deployments (Render provides HTTPS) - MUST be True for SameSite=None
+    SESSION_COOKIE_SECURE = True
+    # Allow sessions to work with HTTPS - None allows cross-origin cookies
+    SESSION_COOKIE_SAMESITE = 'None'
+    # Ensure session directory exists in Render's ephemeral storage
     SESSION_FILE_DIR = os.environ.get('SESSION_FILE_DIR', '/tmp/flask_session')
+    # Explicitly set cookie path
+    SESSION_COOKIE_PATH = '/'
 
 
 # Config dictionary

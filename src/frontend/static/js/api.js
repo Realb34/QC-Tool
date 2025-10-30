@@ -8,6 +8,7 @@ const API = {
         const response = await fetch('/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',  // Required for cookies
             body: JSON.stringify(credentials)
         });
 
@@ -20,12 +21,17 @@ const API = {
     },
 
     async logout() {
-        const response = await fetch('/api/auth/logout', { method: 'POST' });
+        const response = await fetch('/api/auth/logout', {
+            method: 'POST',
+            credentials: 'include'
+        });
         return await response.json();
     },
 
     async getAuthStatus() {
-        const response = await fetch('/api/auth/status');
+        const response = await fetch('/api/auth/status', {
+            credentials: 'include'
+        });
         return await response.json();
     },
 
@@ -34,6 +40,7 @@ const API = {
         const response = await fetch('/api/sites/list', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
             body: JSON.stringify({ path })
         });
 
@@ -49,6 +56,7 @@ const API = {
         const response = await fetch('/api/sites/select', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
             body: JSON.stringify({ site_name: siteName, site_path: sitePath })
         });
 
@@ -61,7 +69,9 @@ const API = {
     },
 
     async getCurrentSite() {
-        const response = await fetch('/api/sites/current');
+        const response = await fetch('/api/sites/current', {
+            credentials: 'include'
+        });
         return await response.json();
     },
 
@@ -70,6 +80,7 @@ const API = {
         const response = await fetch('/api/files/browse', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
             body: JSON.stringify({ path })
         });
 
@@ -85,6 +96,7 @@ const API = {
         const response = await fetch('/api/files/download', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
             body: JSON.stringify({ file_path: filePath })
         });
 
@@ -112,6 +124,7 @@ const API = {
         const response = await fetch('/api/files/info', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
             body: JSON.stringify({ file_path: filePath })
         });
 
@@ -127,6 +140,7 @@ const API = {
         const response = await fetch('/api/files/preview', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
             body: JSON.stringify({ file_path: filePath })
         });
 
