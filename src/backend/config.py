@@ -18,7 +18,7 @@ class Config:
     SESSION_PERMANENT = True
     SESSION_COOKIE_NAME = 'qc_tool_session'
     SESSION_COOKIE_HTTPONLY = True
-    SESSION_COOKIE_SAMESITE = 'None'  # Required for cross-origin in some browsers
+    SESSION_COOKIE_SAMESITE = 'Lax'  # Same-origin requests (page and API on same domain)
     SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE', 'False').lower() == 'true'
     SESSION_COOKIE_PATH = '/'
     PERMANENT_SESSION_LIFETIME = timedelta(hours=4)
@@ -53,10 +53,10 @@ class DevelopmentConfig(Config):
 class ProductionConfig(Config):
     """Production configuration"""
     DEBUG = False
-    # For HTTPS deployments (Render provides HTTPS) - MUST be True for SameSite=None
+    # For HTTPS deployments (Render provides HTTPS)
     SESSION_COOKIE_SECURE = True
-    # Allow sessions to work with HTTPS - None allows cross-origin cookies
-    SESSION_COOKIE_SAMESITE = 'None'
+    # Same-origin requests - Lax is appropriate
+    SESSION_COOKIE_SAMESITE = 'Lax'
 
 
 # Config dictionary
