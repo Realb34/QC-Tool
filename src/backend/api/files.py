@@ -14,6 +14,35 @@ logger = logging.getLogger(__name__)
 files_bp = Blueprint('files', __name__)
 
 
+def get_or_create_connection(session_id):
+    """
+    Get existing connection or create new one from session credentials.
+    This handles multiple Gunicorn workers where connections aren't shared.
+    """
+    connection = connection_service.get_connection(session_id)
+    if not connection:
+        # Connection doesn't exist in this worker - reconnect using session credentials
+        host = session.get('host')
+        username = session.get('username')
+        protocol = session.get('protocol')
+        password = session.get('password')
+        port = session.get('port')
+
+        if not all([host, username, protocol, password, port]):
+            return None
+
+        logger.info(f"Reconnecting to {host} for session {session_id} (different worker)")
+        connection = connection_service.connect(
+            session_id=session_id,
+            protocol=protocol,
+            host=host,
+            port=port,
+            username=username,
+            password=password
+        )
+    return connection
+
+
 @files_bp.route('/browse', methods=['GET', 'POST'])
 def browse():
     """
@@ -34,7 +63,7 @@ def browse():
         if not session_id:
             return jsonify({'error': 'Not authenticated'}), 401
 
-        connection = connection_service.get_connection(session_id)
+        connection = get_or_create_connection(session_id)
         if not connection:
             return jsonify({'error': 'Session expired'}), 401
 
@@ -84,7 +113,7 @@ def download():
         if not session_id:
             return jsonify({'error': 'Not authenticated'}), 401
 
-        connection = connection_service.get_connection(session_id)
+        connection = get_or_create_connection(session_id)
         if not connection:
             return jsonify({'error': 'Session expired'}), 401
 
@@ -139,7 +168,7 @@ def file_info():
         if not session_id:
             return jsonify({'error': 'Not authenticated'}), 401
 
-        connection = connection_service.get_connection(session_id)
+        connection = get_or_create_connection(session_id)
         if not connection:
             return jsonify({'error': 'Session expired'}), 401
 
@@ -240,7 +269,7 @@ def preview():
         if not session_id:
             return jsonify({'error': 'Not authenticated'}), 401
 
-        connection = connection_service.get_connection(session_id)
+        connection = get_or_create_connection(session_id)
         if not connection:
             return jsonify({'error': 'Session expired'}), 401
 
