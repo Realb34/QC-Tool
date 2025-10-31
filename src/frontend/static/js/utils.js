@@ -62,7 +62,9 @@ function getFileIcon(filename, isDirectory) {
 // Check if user is authenticated
 async function checkAuth() {
     try {
-        const response = await fetch('/api/auth/status');
+        const response = await fetch('/api/auth/status', {
+            credentials: 'include'  // Required to send session cookie
+        });
         const data = await response.json();
 
         if (data.authenticated) {
@@ -89,7 +91,10 @@ async function checkAuth() {
 async function logout() {
     if (confirm('Are you sure you want to logout?')) {
         try {
-            await fetch('/api/auth/logout', { method: 'POST' });
+            await fetch('/api/auth/logout', {
+                method: 'POST',
+                credentials: 'include'  // Required to send session cookie
+            });
             showToast('Logged out successfully', 'success');
             setTimeout(() => {
                 window.location.href = '/';
