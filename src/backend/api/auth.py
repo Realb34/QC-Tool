@@ -75,6 +75,7 @@ def login():
         logger.info(f"User logged in: {username}@{host} ({protocol}), session_id: {session_id}")
         logger.info(f"Session data after login: {dict(session)}")
         logger.info(f"Request scheme: {request.scheme}, is_secure: {request.is_secure}")
+        logger.info(f"SECRET_KEY prefix on login: {current_app.config['SECRET_KEY'][:10]}...")
 
         response = jsonify({
             'success': True,
@@ -150,9 +151,14 @@ def status():
             "username": "user"
         }
     """
-    logger.info(f"Auth status check - Session contents: {dict(session)}")
-    logger.info(f"Auth status check - Cookie from request: {request.cookies.get('qc_tool_session')}")
-    logger.info(f"Auth status check - All cookies: {dict(request.cookies)}")
+    try:
+        logger.info(f"Auth status check - Session contents: {dict(session)}")
+        logger.info(f"Auth status check - Cookie from request: {request.cookies.get('qc_tool_session')}")
+        logger.info(f"Auth status check - All cookies: {dict(request.cookies)}")
+        logger.info(f"Auth status check - SECRET_KEY prefix: {current_app.config['SECRET_KEY'][:10]}...")
+    except Exception as e:
+        logger.error(f"Error reading session: {e}", exc_info=True)
+
     session_id = session.get('session_id')
 
     if not session_id:

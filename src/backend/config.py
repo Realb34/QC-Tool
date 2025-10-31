@@ -12,9 +12,8 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY', secrets.token_hex(32))
     DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
-    # Session settings - using signed cookies for better Render compatibility
-    # Filesystem sessions have issues on Render's ephemeral storage
-    SESSION_TYPE = 'null'  # Use Flask's default signed cookie sessions
+    # Session settings - using Flask's native signed cookie sessions
+    # SESSION_TYPE is not needed for Flask's native sessions (only for Flask-Session extension)
     SESSION_PERMANENT = True
     SESSION_COOKIE_NAME = 'qc_tool_session'
     SESSION_COOKIE_HTTPONLY = True
